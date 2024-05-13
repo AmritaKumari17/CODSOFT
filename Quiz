@@ -1,0 +1,103 @@
+import java.util.Scanner;
+import java.util.Timer;
+import java.util.TimerTask;
+
+class Quiz {
+    private String question;
+    private String[] options;
+    private int correctOption;
+
+    public Quiz(String question, String[] options, int correctOption) {
+        this.question = question;
+        this.options = options;
+        this.correctOption = correctOption;
+    }
+
+    public String getQuestion() {
+        return question;
+    }
+
+    public String[] getOptions() {
+        return options;
+    }
+
+    public int getCorrectOption() {
+        return correctOption;
+    }
+}
+
+public class QuizApplication {
+    private static int score = 0;
+    private static int currentQuestionIndex = 0;
+    private static Quiz[] quizzes;
+    private static Timer timer;
+    private static Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) {
+        initializeQuizzes();
+        startQuiz();
+    }
+
+    private static void initializeQuizzes() {
+        // Initialize quiz questions, options, and correct answers
+        quizzes = new Quiz[3]; // Change the number based on the number of questions
+        quizzes[0] = new Quiz("What is the chemical symbol for water?",
+                new String[]{"1. H2O", "2. CO2", "3. NaCl", "4. H2SO4"}, 1);
+        quizzes[1] = new Quiz("Who was the first President of the United States?",
+                new String[]{"1. George Washington", "2. Thomas Jefferson", "3. Abraham Lincoln", "4. John Adams"}, 1);
+        quizzes[2] = new Quiz("What is the longest river in the world?",
+                new String[]{"1. Nile", "2. Amazon", "3. Yangtze", "4. Mississippi"}, 1);
+    }
+
+    private static void startQuiz() {
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                System.out.println("\nTime's up!");
+                displayResult();
+                timer.cancel();
+                System.exit(0);
+            }
+        }, 20000); // 2 seconds timer for each question
+
+        displayQuestion(quizzes[currentQuestionIndex]);
+    }
+
+    private static void displayQuestion(Quiz quiz) {
+        System.out.println("\nQuestion: " + quiz.getQuestion());
+        System.out.println("Options:");
+        for (String option : quiz.getOptions()) {
+            System.out.println(option);
+        }
+        System.out.print("Enter your choice (1-4): ");
+
+        int userChoice = scanner.nextInt();
+
+        if (userChoice >= 1 && userChoice <= 4) {
+            if (userChoice == quiz.getCorrectOption()) {
+                System.out.println("Correct!");
+                score++;
+            } else {
+                System.out.println("Incorrect!");
+            }
+
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizzes.length) {
+                startQuiz();
+            } else {
+                displayResult();
+                timer.cancel();
+            }
+        } else {
+            System.out.println("Invalid choice. Please enter a number between 1 and 4.");
+            displayQuestion(quiz); // Display the same question again
+        }
+    }
+
+    private static void displayResult() {
+        System.out.println("\nQuiz Ended!");
+        System.out.println("Your Score: " + score + "/" + quizzes.length);
+        scanner.close();
+    }
+}
